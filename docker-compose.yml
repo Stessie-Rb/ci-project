@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  #----Traefik: reverse proxy----------
+  reverse-proxy:
+    image: traefik:v2.5
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      # Web
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/static.yml:/etc/traefik/traefik.yml:ro
+      - ./config/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./certs:/etc/certs:ro
+    networks:
+      - web
+
+  #----Jenkins: ci server----------
+  jenkins:
+    build:
+      context: ./Jenkins
+    container_name: jenkins
+    restart: always
+    env_file: ./.env
+    ports:
+      - '8080'
+    expose:
+      - '50000'
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.jenkins.rule=Host(`jenkins.project-ci.localhost`)
+      - traefik.http.routers.jenkins.tls=true
+      - traefik.http.services.jenkins.loadbalancer.server.port=8080
+    networks:
+      - web
+      - internal
+
+volumes:
+  jenkins_home:
+  
+networks:
+  web:
+    external: true
+  internal:
+    external: false

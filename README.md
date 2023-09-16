@@ -32,6 +32,19 @@ Then generate the password with htpasswd. Replace your_password with the passwor
 ```
 Copy the entire command output line and past it into the dynamic.yml file.
 
+## Local development environment
+This version of the project allows using Traefik by supporting secure connection in a local development environment. Let's encrypt, usually used by Traefik to benefit from an SSL connection, cannot be used in a local environment (localhost). You must therefore generate a self-signed certificate using a utility like mkcert for example:
+
+```
+    mkcert -install
+```
+Then create a directory to store the certificates and generate the certificates for the domains and subdomains that will be used by the project:
+
+```
+mkdir certs
+mkcert -cert-file certs/local-cert.pem -key-file certs/local-key.pem "project-ci.localhost" "*.project-ci.localhost"
+```
+
 ## Launch the tools
 ```
     docker-compose up

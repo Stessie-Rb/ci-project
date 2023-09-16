@@ -1,0 +1,24 @@
+http:
+  middlewares:
+    simpleAuth:
+      basicAuth:
+        users:
+          - "admin:$apr1$ljbxVWHT$Ovh9R1D2o1Ts7CC0dMvyA/"
+  routers:
+    traefik:
+      # Protecting access to the dashboard with a password
+      rule: "Host(`traefik.project-ci.localhost`)"
+      middlewares:
+        - "simpleAuth"
+      service: "api@internal"
+      tls:
+        domains:
+          - main: "project-ci.localhost"
+            sans:
+              - "*.project-ci.localhost"
+
+# The certificates to use are indicated here to avoid having to do so in the docker-compose file
+tls:
+  certificates:
+    - certFile: "/etc/certs/local-cert.pem"
+      keyFile: "/etc/certs/local-key.pem"

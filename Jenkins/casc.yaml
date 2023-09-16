@@ -1,0 +1,55 @@
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: ${JENKINS_ADMIN_ID}
+          password: ${JENKINS_ADMIN_PASSWORD}
+        - id: ${JENKINS_DEV_ID}
+          password: ${JENKINS_DEV_PASSWORD}
+  authorizationStrategy:
+    globalMatrix:
+      permissions:
+        - "Overall/Administer:${JENKINS_ADMIN_ID}"
+        - "Overall/Read:authenticated"
+        - "Agent/Build:authenticated"
+        - "Agent/Configure:authenticated"
+        - "Agent/Connect:authenticated"
+        - "Agent/Create:authenticated"
+        - "Agent/Delete:authenticated"
+        - "Agent/Disconnect:authenticated"
+        - "Credentials/Create:authenticated"
+        - "Credentials/Delete:authenticated"
+        - "Credentials/ManageDomains:authenticated"
+        - "Credentials/Update:authenticated"
+        - "Credentials/View:authenticated"
+        - "Job/Build:authenticated"
+        - "Job/Cancel:authenticated"
+        - "Job/Configure:authenticated"
+        - "Job/Create:authenticated"
+        - "Job/Delete:${JENKINS_ADMIN_ID}"
+        - "Job/Discover:authenticated"
+        - "Job/Move:authenticated"
+        - "Job/Read:authenticated"
+        - "Job/Workspace:authenticated"
+        - "Run/Delete:authenticated"
+        - "Run/Replay:authenticated"
+        - "Run/Update:authenticated"
+        - "View/Configure:authenticated"
+        - "View/Create:authenticated"
+        - "View/Delete:authenticated"
+        - "View/Read:authenticated"
+  remotingSecurity:
+    enabled: true
+
+# Run builds using the user that triggered the build, instead of the system user (which has a 
+# lot of system privileges and can perform privilege escalation simply by defining and running
+# a malicious job or pipeline, for builds triggered remotely from the SCM, use build as specific user /!\ to be configured manually because it is not compatible with jenkins casc
+security:
+  queueItemAuthenticator:
+    authenticators:
+    - global:
+        strategy: triggeringUsersAuthorizationStrategy
+unclassified:
+  location:
+    url: https://jenkins.project-ci.localhost/
