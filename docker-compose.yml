@@ -42,6 +42,33 @@ services:
     networks:
       - web
       - internal
+  
+  #----Gitlab: source code management----------
+  gitlab:
+    image: 'gitlab/gitlab-ce:latest'
+    container_name: gitlab
+    restart: always
+    hostname: 'gitlab.localhost'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://gitlab.pproject-ci.localhost'
+    ports:
+      - '80'
+      - '443'
+      - '2222:22'
+    volumes:
+      - '/srv-gitlab/gitlab/config:/etc/gitlab'
+      - '/srv-gitlab/gitlab/logs:/var/log/gitlab'
+      - '/srv-gitlab/gitlabdata:/var/opt/gitlab'
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.gitlab.rule=Host(`gitlab.project-ci.localhost`)
+      - traefik.http.routers.gitlab.tls=true
+      - traefik.http.routers.gitlab.tls.certResolver=lets-encrypt
+      - traefik.http.services.gitlab.loadbalancer.server.port=80
+    networks:
+      - web
+      - internal
 
 volumes:
   jenkins_home:
